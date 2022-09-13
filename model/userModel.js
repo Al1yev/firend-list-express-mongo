@@ -22,17 +22,24 @@ const userSchema = mongoose.Schema({
   },
   aboutMe: {
     type: String,
+    default: "Person",
   },
 
   // friends: [{}],
 
+  role: {
+    type: String,
+    default: "user",
+    enum: ["user", "admin"],
+  },
+
   email: {
     type: String,
     required: [true, "Please enter email!"],
-    validate: [
-      () => validator.validate(this.email),
-      "Please enter a correct email!",
-    ],
+    validate: {
+      validator: (val) => validator.validate(val),
+      message: "Please enter a correct email!",
+    },
     unique: [true, "Email is already registered"],
   },
   password: {
@@ -44,10 +51,12 @@ const userSchema = mongoose.Schema({
   passwordConfirm: {
     type: String,
     required: [true, "Please enter passwordConfirm!"],
-    validate: [
-      () => this.password === this.passwordConfirm,
-      "Different password and password confirm",
-    ],
+    validate: {
+      validator: function (val) {
+        return val == this.password;
+      },
+      message: "Iltimos siz bir xil password kiriting",
+    },
   },
 });
 
