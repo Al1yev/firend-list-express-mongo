@@ -5,6 +5,8 @@ const authController = require("../controller/authController");
 router.route("/signup").post(authController.signUp);
 router.route("/signin").post(authController.signIn);
 
+router.all("*", authController.checkToken);
+
 router
   .route("/")
   .get(userController.getAllUser)
