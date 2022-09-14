@@ -7,6 +7,7 @@ const AppError = require("../utility/appError");
 const catchErrorAsync = require("../utility/catchErrorAsync");
 const handlerController = require("./handlerController");
 const resFunc = require("../utility/resFunc");
+const Email = require("../utility/mail");
 
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET_KEY, {
@@ -53,6 +54,13 @@ class AuthController {
     console.log("Token otdi");
     next();
   };
+
+  emailSender = catchErrorAsync(async (req, res, next) => {
+    const user = await User.findById(req.params.id);
+    const message = await new Email(user).sending();
+    console.log(message);
+    next();
+  });
 }
 
 module.exports = new AuthController();

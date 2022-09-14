@@ -25,7 +25,21 @@ const userSchema = mongoose.Schema({
     default: "Person",
   },
 
-  // friends: [{}],
+  friends: [
+    {
+      id: { type: String },
+      status: {
+        type: String,
+        enum: ["wait", "added"],
+        default: "wait",
+      },
+      whom: {
+        type: String,
+        enum: ["him", "me"],
+        default: "him",
+      },
+    },
+  ],
 
   role: {
     type: String,
