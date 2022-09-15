@@ -27,7 +27,11 @@ const userSchema = mongoose.Schema({
 
   friends: [
     {
-      id: { type: String },
+      _id: false,
+      user_id: {
+        type: String,
+        unique: [true, "You have already that friend!"],
+      },
       status: {
         type: String,
         enum: ["wait", "added"],

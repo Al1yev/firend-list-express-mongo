@@ -7,6 +7,9 @@ router.route("/signin").post(authController.signIn);
 
 router.all("*", authController.checkToken);
 
+router.route("/reqFriend/:id").get(userController.requestFriend);
+router.route("/addFriend/:id").get();
+
 router
   .route("/")
   .get(userController.getAllUser)

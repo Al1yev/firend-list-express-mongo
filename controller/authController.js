@@ -26,7 +26,7 @@ class AuthController {
     if (!user) return next(new AppError(`${Model} is not created !`));
 
     const token = createToken(user.id);
-    resFunc(res, 201, "Success", data, token);
+    resFunc(res, 201, "Success", user, token);
   });
 
   signIn = catchErrorAsync(async (req, res, next) => {
@@ -41,20 +41,24 @@ class AuthController {
     resFunc(res, 200, "Success", user, token);
   });
 
-  checkToken = (req, res, next) => {
-    const token = req.headers.authorization;
-    if (!token) return next(new AppError("Token not found"));
-    if (
-      !(
-        token.startsWith("Bearer") &&
-        jwt.verify(token.split(" ")[1], process.env.JWT_SECRET_KEY)
-      )
-    )
-      return next(new AppError("Token is invalid!"));
-    console.log("Token otdi");
-    next();
-  };
+  // Checking JWT token
+  checkToken = catchErrorAsync(async (req, res, next) => {
+    let token = req.headers.authorization;
 
+    if (!token || !token.startsWith("Bearer"))
+      return next(new AppError("Token not found"));
+    token = token.split(" ")[1];
+    if (!jwt.verify(token, process.env.JWT_SECRET_KEY))
+      return next(new AppError("Token is invalid!"));
+
+    const id = jwt.decode(token).id;
+    const user = await User.findById(id);
+    if (!user) return next(new AppError("User not found"));
+    req.user = user;
+    next();
+  });
+
+  // Sending email for test
   emailSender = catchErrorAsync(async (req, res, next) => {
     const user = await User.findById(req.params.id);
     const message = await new Email(user).sending();
