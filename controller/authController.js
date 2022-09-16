@@ -18,12 +18,8 @@ const createToken = (id) => {
 
 class AuthController {
   signUp = catchErrorAsync(async (req, res, next) => {
-    const { email } = req.body;
-    if (await User.findOne({ email }))
-      return next(new AppError("Email is already registered"));
-
     const user = await User.create(req.body);
-    if (!user) return next(new AppError(`${Model} is not created !`));
+    if (!user) return next(new AppError(`User is not created !`));
 
     const token = createToken(user.id);
     resFunc(res, 201, "Success", user, token);

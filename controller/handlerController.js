@@ -2,6 +2,8 @@ const catchErrorAsync = require("../utility/catchErrorAsyncModel");
 const AppError = require("../utility/appError");
 const resFunc = require("../utility/resFunc.js");
 
+const Friends = require("../model/friendsModel");
+
 class HandlerController {
   getAllData = catchErrorAsync(async (req, res, next, Model) => {
     const data = await Model.find();
@@ -25,8 +27,19 @@ class HandlerController {
   });
 
   createData = catchErrorAsync(async (req, res, next, Model) => {
-    const data = await Model.create(req.body);
+    // ---***---
+    if ({ ...Model }["modelName"] == "user") {
+      console.log("Keldi");
+      const friendList = await Friends.create({
+        friendsIds: [],
+      });
+      req.body.friends = friendList._id;
+    }
+    // ---***---
+
+    let data = await Model.create(req.body);
     if (!data) return next(new AppError(`${Model} is not created !`));
+
     resFunc(res, 201, "Success", data);
   });
 

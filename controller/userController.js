@@ -1,5 +1,6 @@
 const handlerController = require("./handlerController");
 const User = require("../model/userModel");
+const Friends = require("../model/friendsModel");
 const catchErrorAsync = require("../utility/catchErrorAsync");
 const AppError = require("../utility/appError");
 
@@ -12,9 +13,9 @@ class UserController {
     handlerController.getOneData(req, res, next, User);
   }
 
-  createUser(req, res, next) {
+  createUser = catchErrorAsync(async (req, res, next) => {
     handlerController.createData(req, res, next, User);
-  }
+  });
 
   updateUser(req, res, next) {
     handlerController.updateData(req, res, next, User);
@@ -34,22 +35,32 @@ class UserController {
       );
 
     // friendning friendsiga yangi sorovni qoshib qoyish
-    let fArr = friend.friends;
-    fArr.push({
-      user_id: req.user._id,
-      status: "wait",
-      whom: "me",
-    });
-    await User.findByIdAndUpdate({ _id: friend._id }, { friends: fArr });
+    await User.findByIdAndUpdate(
+      { _id: friend._id },
+      {
+        $push: {
+          friends: {
+            user_id: req.user._id,
+            status: "wait",
+            whom: "me",
+          },
+        },
+      }
+    );
 
     // Userni arrayiga yangi sorovni qo'shib qo'yish
-    let myArr = req.user.friends;
-    myArr.push({
-      user_id: friend._id,
-      status: "wait",
-      whom: "him",
-    });
-    await User.findByIdAndUpdate({ _id: req.user._id }, { friends: myArr });
+    await User.findByIdAndUpdate(
+      { _id: req.user._id },
+      {
+        $push: {
+          friends: {
+            user_id: friend._id,
+            status: "wait",
+            whom: "him",
+          },
+        },
+      }
+    );
 
     res.status(201).json({
       status: "Success",
